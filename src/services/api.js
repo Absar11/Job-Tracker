@@ -1,4 +1,6 @@
-const BASE_URL = "/api";
+// In dev: proxied via Vite → "/api"
+// In production (Vercel): VITE_API_URL = "https://your-backend.onrender.com"
+const BASE_URL = (import.meta.env.VITE_API_URL ?? "") + "/api";
 
 export const getToken = () => {
   return localStorage.getItem("job_tracker_token");

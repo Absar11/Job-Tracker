@@ -1,6 +1,7 @@
 import "dotenv/config";
 import http from "http";
 import express from "express";
+import cors from "cors";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { dbService } from "./src/backend/services/dbService.js";
@@ -18,7 +19,26 @@ async function startServer() {
   // Start automatic interview reminder scheduler (24h + 1h before interview)
   startReminderScheduler(dbService.useMongo);
 
-  // Parse request payloads — 10MB limit for resume/file uploads
+  // CORS — allow requests from Vercel frontend (set FRONTEND_URL in Render env vars)
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,          // e.g. https://your-app.vercel.app
+    "http://localhost:3000",            // local dev
+    "http://localhost:5173",            // vite dev fallback
+  ].filter(Boolean);
+
+  app.use(cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (curl, Postman, server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin '${origin}' not allowed.`));
+      }
+    },
+    credentials: true,
+  }));
+
+  // Parse request payloads — 10MB limit for file uploads
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -56,19 +76,22 @@ async function startServer() {
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        // Share the Express HTTP server — Vite HMR uses port 3000, not 24678
         hmr: { server: httpServer },
       },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    console.log("Running in Production Mode. Serving compiled static web app assets.");
+  } else if (process.env.SERVE_FRONTEND !== "false") {
+    // Production: serve static React build (when frontend is NOT on Vercel)
+    console.log("Production Mode: serving static frontend assets.");
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
+  } else {
+    // API-only mode (frontend is on Vercel — SERVE_FRONTEND=false)
+    console.log("API-only mode: frontend is hosted separately on Vercel.");
   }
 
   // Start listening with clear error handling
