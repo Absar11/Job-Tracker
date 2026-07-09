@@ -36,6 +36,7 @@ generate_pdf.cjs
 
 # ── Generated PDF (don't commit binary) ──────────────────────
 INTERVIEW_GUIDE.pdf
+INTERVIEW_GUIDE.md
 
 # ── Internal metadata (AI tool generated) ────────────────────
 metadata.json
