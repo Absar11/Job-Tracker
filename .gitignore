@@ -1,0 +1,44 @@
+# ── Dependencies ───────────────────────────────────────────────
+node_modules/
+
+# ── Build Output ───────────────────────────────────────────────
+build/
+dist/
+coverage/
+
+# ── Environment Variables (secrets) ───────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Local Database (auto-generated fallback file) ─────────────
+data/
+
+# ── OS / Editor Junk ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# ── Dev Tools / IDE ───────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ── Dev Launcher (local utility only) ────────────────────────
+dev-start.cjs
+
+# ── PDF Generator Script (one-off utility) ───────────────────
+generate_pdf.cjs
+
+# ── Generated PDF (don't commit binary) ──────────────────────
+INTERVIEW_GUIDE.pdf
+
+# ── Internal metadata (AI tool generated) ────────────────────
+metadata.json
+
+# ── Vite Cache ────────────────────────────────────────────────
+.vite/
